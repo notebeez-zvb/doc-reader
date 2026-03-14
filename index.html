@@ -1,50 +1,62 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
-<title>Audio čitač</title>
+  <meta charset="UTF-8">
+  <title>Audio čitač Google Docs</title>
 </head>
-
 <body>
 
 <h2>Pokrećem čitanje...</h2>
 
 <script>
 
-// lista dokumenata
+// mapa dokumenata: broj iz ?id=... → Google Docs ID
 const docs = {
   1: "1uuqPJFh5b0vZ70NMvHxb_FKZfRNPUT0fXmI4cL168EE",
-  2: "OVDJE_ID_DRUGOG_DOKUMENTA",
-  3: "OVDJE_ID_TRECEG_DOKUMENTA"
+  2: "OVDJE_DRUGI_GOOGLE_DOC_ID",   // dodaj više dokumenata po potrebi
+  3: "OVDJE_TRECI_GOOGLE_DOC_ID"
 };
 
-async function readDoc(){
+async function readDoc() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const docNumber = urlParams.get("id");  // koristi "id" jer je tag već takav
 
- const urlParams = new URLSearchParams(window.location.search);
- const docNumber = urlParams.get("id");
+  const docID = docs[docNumber];
 
- const docID = docs[docNumber];
+  if (!docID) {
+    document.body.innerHTML = "Dokument nije pronađen.";
+    return;
+  }
 
- if(!docID){
-   document.body.innerHTML = "Dokument nije pronađen.";
-   return;
- }
+  try {
+    const response = await fetch(
+      "https://docs.google.com/document/d/" + docID + "/export?format=txt"
+    );
 
- const response = await fetch(
-   "https://docs.google.com/document/d/" + docID + "/export?format=txt"
- );
+    if (!response.ok) {
+      document.body.innerHTML = "Greška pri učitavanju dokumenta.";
+      return;
+    }
 
- const text = await response.text();
+    const text = await response.text();
 
- const speech = new SpeechSynthesisUtterance(text);
+    if (!text.trim()) {
+      document.body.innerHTML = "Dokument je prazan.";
+      return;
+    }
 
- speech.lang = "bs-BA";
- speech.rate = 1;
+    const speech = new SpeechSynthesisUtterance(text);
+    speech.lang = "bs-BA"; // možeš mijenjati jezik, npr. "hr-HR" ili "en-US"
+    speech.rate = 1;        // brzina čitanja
 
- speechSynthesis.speak(speech);
+    speechSynthesis.speak(speech);
 
+  } catch (err) {
+    document.body.innerHTML = "Došlo je do greške: " + err;
+  }
 }
 
+// pokreni čitanje čim se stranica učita
 readDoc();
 
 </script>
