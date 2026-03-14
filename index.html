@@ -9,29 +9,26 @@
 <h2>Pokrećem čitanje...</h2>
 
 <script>
-
-// mapa dokumenata: broj iz ?id=... → Google Docs ID
+// mapa dokumenata: broj iz ?id=... → javni Google Docs link
 const docs = {
-  1: "1uuqPJFh5b0vZ70NMvHxb_FKZfRNPUT0fXmI4cL168EE",
-  2: "OVDJE_DRUGI_GOOGLE_DOC_ID",   // dodaj više dokumenata po potrebi
-  3: "OVDJE_TRECI_GOOGLE_DOC_ID"
+  1: "https://docs.google.com/document/d/e/2PACX-1vTvePUtF5I_zRFTKdqnxhJ5XSevUpYE7RynJ2jsahM40-hapbjSkzoOW9p2GZuF7Vdy3tny1BOAwfUn/pub",
+  2: "https://docs.google.com/document/d/OVDJE_DRUGI_GOOGLE_DOC_ID/pub?output=txt",
+  3: "https://docs.google.com/document/d/OVDJE_TRECI_GOOGLE_DOC_ID/pub?output=txt"
 };
 
 async function readDoc() {
   const urlParams = new URLSearchParams(window.location.search);
   const docNumber = urlParams.get("id");  // koristi "id" jer je tag već takav
 
-  const docID = docs[docNumber];
+  const docURL = docs[docNumber];
 
-  if (!docID) {
+  if (!docURL) {
     document.body.innerHTML = "Dokument nije pronađen.";
     return;
   }
 
   try {
-    const response = await fetch(
-      "https://docs.google.com/document/d/" + docID + "/export?format=txt"
-    );
+    const response = await fetch(docURL);
 
     if (!response.ok) {
       document.body.innerHTML = "Greška pri učitavanju dokumenta.";
